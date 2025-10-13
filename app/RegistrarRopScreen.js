@@ -1,10 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert, Platform, StatusBar } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Platform,
+  Alert,
+  StatusBar,
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated';
+import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated'; // Animações Reanimated
+import { useNavigation } from '@react-navigation/native'; // Vai ser usado para navegação entre telas
 
-const RegistrarRopScreen = () => {
+// Lista de cidades da região de Sergipe para o Picker
+const CIDADES_SERGIPE = [
+  'Aracaju', 'São Cristóvão', 'Nossa Senhora do Socorro', 'Itabaiana', 'Lagarto',
+  'Estância', 'Tobias Barreto', 'Barra dos Coqueiros', 'Capela', 'Propriá',
+];
+
+// Função para gerar um número de atendimento aleatório
+const gerarNumeroAtendimento = () => {
+  const parte1 = Math.floor(Math.random() * 900) + 100;
+  const parte2 = Math.floor(Math.random() * 900) + 100;
+  const parte3 = Math.floor(Math.random() * 900) + 100;
+  const parte4 = Math.floor(Math.random() * 90) + 10;
+  const parte5 = Math.floor(Math.random() * 900) + 100;
+  return `${parte1}${parte2}${parte3}${parte4}${parte5}`;
+};
+
+// Componente principal da tela de registro de ROP
+export default function RegistrarRopScreen() {
+  // const navigation = useNavigation(); // Hook do React Navigation para navegação
+
+  // Estados para armazenar os dados do formulário
   const [tipoRop, setTipoRop] = useState('');
   const [evento, setEvento] = useState('');
   const [destino, setDestino] = useState('');
@@ -14,11 +46,14 @@ const RegistrarRopScreen = () => {
   const [numero, setNumero] = useState('');
   const [pontoReferencia, setPontoReferencia] = useState('');
   const [numAtendimento, setNumAtendimento] = useState('');
+
+  // Estados para data e hora com seletores nativos
   const [data, setData] = useState(new Date());
   const [hora, setHora] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
+  // Estados para os switches dos "Elementos presentes"
   const [envolvidos, setEnvolvidos] = useState(false);
   const [armaFogo, setArmaFogo] = useState(false);
   const [armaBranca, setArmaBranca] = useState(false);
@@ -28,481 +63,350 @@ const RegistrarRopScreen = () => {
   const [objetos, setObjetos] = useState(false);
   const [veiculos, setVeiculos] = useState(false);
 
-  const cidadesSergipe = [
-    'Aracaju',
-    'Nossa Senhora do Socorro',
-    'São Cristóvão',
-    'Barra dos Coqueiros',
-    'Itaporanga d\'Ajuda',
-    'Laranjeiras',
-    'Estância',
-    'Itabaiana',
-    'Lagarto',
-  ];
-
+  // Efeito para gerar o número de atendimento ao carregar a tela
   useEffect(() => {
-    generateNumAtendimento();
+    setNumAtendimento(gerarNumeroAtendimento());
   }, []);
 
-  const generateNumAtendimento = () => {
-    const randomNum = Math.floor(100000000000 + Math.random() * 900000000000);
-    setNumAtendimento(randomNum.toString());
-  };
-
-  const onDateChange = (event, selectedDate) => {
+  // Funções de manipulação para os seletores de data e hora
+  const onChangeDate = (event, selectedDate) => {
     const currentDate = selectedDate || data;
     setShowDatePicker(Platform.OS === 'ios');
     setData(currentDate);
   };
 
-  const onTimeChange = (event, selectedTime) => {
+  const onChangeTime = (event, selectedTime) => {
     const currentTime = selectedTime || hora;
     setShowTimePicker(Platform.OS === 'ios');
     setHora(currentTime);
   };
 
+  // Função para salvar o rascunho (simulação)
   const handleSaveDraft = () => {
-    Alert.alert('Rascunho Salvo', 'Os dados foram salvos como rascunho.');
-    // Implementar lógica de salvamento real aqui
+    Alert.alert('Rascunho salvo', 'Seu rascunho foi salvo com sucesso!');
   };
-
-  const handleSubmit = () => {
+  
+  // Função para lidar com a submissão do formulário (botão 'Próximo')
+  const handleNext = () => {
+    // Validação de campos obrigatórios
     if (!tipoRop || !evento) {
-      Alert.alert('Erro', 'Por favor, preencha os campos obrigatórios (Tipo de ROP e Evento/Operação).');
+      Alert.alert('Erro de Validação', 'Por favor, preencha os campos obrigatórios (Tipo de ROP e Evento/Operação).');
       return;
     }
 
-    const dadosRop = {
-      tipoRop,
-      evento,
-      destino,
-      cidade,
-      bairro,
-      logradouro,
-      numero,
-      pontoReferencia,
-      numAtendimento,
+    // Preparação dos dados para a próxima página
+    const dadosParaProximaPagina = {
+      tipoRop, evento, destino, cidade, bairro, logradouro, numero,
+      pontoReferencia, numAtendimento,
       data: data.toISOString().split('T')[0],
-      hora: hora.toTimeString().split(' ')[0],
+      hora: hora.toTimeString().split(' ')[0].substring(0, 5),
       elementosSelecionados: {
-        envolvidos,
-        armaFogo,
-        armaBranca,
-        municoes,
-        dinheiro,
-        drogas,
-        objetos,
-        veiculos,
+        envolvidos, armaFogo, armaBranca, municoes, dinheiro, drogas, objetos, veiculos,
       },
     };
-    console.log('Dados do ROP:', dadosRop);
-    Alert.alert('Sucesso', 'Formulário enviado! (Verifique o console para os dados)');
-    // Implementar navegação para a próxima página aqui
+
+    console.log('Dados para Próxima Página:', dadosParaProximaPagina);
+    Alert.alert('Sucesso', 'Denúncia registrada, próxima etapa..');
+
   };
 
   return (
-    <View style={styles.fullScreenContainer}>
-      <ScrollView contentContainerStyle={styles.scrollViewContent} keyboardShouldPersistTaps="handled">
-        <Animated.View entering={FadeIn.duration(500)} exiting={FadeOut.duration(500)} layout={Layout.springify()} style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Registrar ROP</Text>
-            <Text style={styles.headerSmallText}>Passo 1 de 3</Text>
+    <View style={styles.fullScreen}>
+      <StatusBar barStyle="light-content" backgroundColor="#145a8d" />
+
+      {/* Cabeçalho com animação de entrada */}
+      <Animated.View entering={FadeInUp.duration(600)} style={styles.header}>
+        <Text style={styles.headerTitle}>Registrar ROP</Text>
+        <Text style={styles.headerSubtitle}>Passo 1 de 3</Text>
+      </Animated.View>
+
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        {/* Container principal do formulário com animação de entrada */}
+        <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.formContainer}>
+
+          <Text style={styles.label}>Tipo de ROP<Text style={styles.requiredIndicator}>*</Text></Text>
+          <View style={styles.pickerContainer}>
+            <Picker selectedValue={tipoRop} onValueChange={setTipoRop} style={styles.picker}>
+              <Picker.Item label="Selecione..." value="" />
+              <Picker.Item label="Ordinário" value="ordinario" />
+              <Picker.Item label="Extraordinário" value="extraordinario" />
+              <Picker.Item label="Específico" value="especifico" />
+            </Picker>
           </View>
 
-          <View style={styles.form}>
-            <Text style={styles.label}>Tipo de ROP*</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={tipoRop}
-                onValueChange={(itemValue) => setTipoRop(itemValue)}
-                style={styles.picker}
-                itemStyle={styles.pickerItem}
-              >
-                <Picker.Item label="Selecione..." value="" />
-                <Picker.Item label="Ordinário" value="ordinario" />
-                <Picker.Item label="Extraordinário" value="extraordinario" />
-                <Picker.Item label="Específico" value="especifico" />
-              </Picker>
-            </View>
+          <Text style={styles.label}>Evento/Operação<Text style={styles.requiredIndicator}>*</Text></Text>
+          <View style={styles.pickerContainer}>
+            <Picker selectedValue={evento} onValueChange={setEvento} style={styles.picker}>
+              <Picker.Item label="Selecione..." value="" />
+              <Picker.Item label="Patrulha" value="patrulha" />
+              <Picker.Item label="Operação Especial" value="operacao_especial" />
+              <Picker.Item label="Abordagem" value="abordagem" />
+              <Picker.Item label="Investigação" value="investigacao" />
+            </Picker>
+          </View>
 
-            <Text style={styles.label}>Evento/Operação*</Text>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={evento}
-                onValueChange={(itemValue) => setEvento(itemValue)}
-                style={styles.picker}
-                itemStyle={styles.pickerItem}
-              >
-                <Picker.Item label="Selecione..." value="" />
-                <Picker.Item label="Patrulha" value="patrulha" />
-                <Picker.Item label="Operação Especial" value="operacao_especial" />
-                <Picker.Item label="Abordagem" value="abordagem" />
-                <Picker.Item label="Investigação" value="investigacao" />
-              </Picker>
-            </View>
+          <Text style={styles.label}>Destino</Text>
+          <TextInput style={styles.input} value={destino} onChangeText={setDestino} placeholder="Ex: Centro da cidade" placeholderTextColor="#999" />
 
-            <Text style={styles.label}>Destino</Text>
-            <TextInput
-              style={styles.input}
-              value={destino}
-              onChangeText={setDestino}
-            />
-
-            <View style={styles.row}>
-              <View style={styles.rowItem}>
-                <Text style={styles.label}>Cidade</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={cidade}
-                    onValueChange={(itemValue) => setCidade(itemValue)}
-                    style={styles.picker}
-                    itemStyle={styles.pickerItem}
-                  >
-                    {cidadesSergipe.map((city, index) => (
-                      <Picker.Item key={index} label={city} value={city} />
-                    ))}
-                  </Picker>
-                </View>
-              </View>
-              <View style={styles.rowItem}>
-                <Text style={styles.label}>Bairro</Text>
-                <TextInput
-                  style={styles.input}
-                  value={bairro}
-                  onChangeText={setBairro}
-                />
+          <View style={styles.row}>
+            <View style={styles.column}>
+              <Text style={styles.label}>Cidade</Text>
+              <View style={styles.pickerContainer}>
+                <Picker selectedValue={cidade} onValueChange={setCidade} style={styles.picker}>
+                  {CIDADES_SERGIPE.map((city) => (<Picker.Item key={city} label={city} value={city} />))}
+                </Picker>
               </View>
             </View>
-
-            <View style={styles.row}>
-              <View style={styles.rowItem}>
-                <Text style={styles.label}>Logradouro do fato</Text>
-                <TextInput
-                  style={styles.input}
-                  value={logradouro}
-                  onChangeText={setLogradouro}
-                />
-              </View>
-              <View style={styles.rowItem}>
-                <Text style={styles.label}>Número</Text>
-                <TextInput
-                  style={styles.input}
-                  value={numero}
-                  onChangeText={setNumero}
-                  keyboardType="numeric"
-                />
-              </View>
-            </View>
-
-            <Text style={styles.label}>Ponto de referência</Text>
-            <TextInput
-              style={styles.input}
-              value={pontoReferencia}
-              onChangeText={setPontoReferencia}
-            />
-
-            <Text style={styles.label}>Número de atendimento</Text>
-            <TextInput
-              style={[styles.input, styles.numAtendimentoInput]}
-              value={numAtendimento}
-              editable={false} // Não editável, gerado automaticamente
-            />
-
-            <View style={styles.row}>
-              <View style={styles.rowItem}>
-                <Text style={styles.label}>Data</Text>
-                <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.datePickerButton}>
-                  <Text style={styles.datePickerButtonText}>{data.toLocaleDateString()}</Text>
-                </TouchableOpacity>
-                {showDatePicker && (
-                  <DateTimePicker
-                    value={data}
-                    mode="date"
-                    display="default"
-                    onChange={onDateChange}
-                  />
-                )}
-              </View>
-              <View style={styles.rowItem}>
-                <Text style={styles.label}>Hora</Text>
-                <TouchableOpacity onPress={() => setShowTimePicker(true)} style={styles.datePickerButton}>
-                  <Text style={styles.datePickerButtonText}>{hora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
-                </TouchableOpacity>
-                {showTimePicker && (
-                  <DateTimePicker
-                    value={hora}
-                    mode="time"
-                    display="default"
-                    onChange={onTimeChange}
-                  />
-                )}
-              </View>
-            </View>
-
-            <Text style={styles.sectionTitle}>Elementos presentes</Text>
-
-            <Animated.View entering={FadeIn} exiting={FadeOut} layout={Layout.springify()}>
-              <View style={styles.switchContainer}>
-                <Text style={styles.switchLabel}>Envolvidos</Text>
-                <Switch
-                  onValueChange={setEnvolvidos}
-                  value={envolvidos}
-                  trackColor={{ false: '#ccc', true: '#28a745' }}
-                  thumbColor={envolvidos ? '#fff' : '#f4f3f4'}
-                />
-              </View>
-            </Animated.View>
-            <Animated.View entering={FadeIn} exiting={FadeOut} layout={Layout.springify()}>
-              <View style={styles.switchContainer}>
-                <Text style={styles.switchLabel}>Arma de fogo</Text>
-                <Switch
-                  onValueChange={setArmaFogo}
-                  value={armaFogo}
-                  trackColor={{ false: '#ccc', true: '#28a745' }}
-                  thumbColor={armaFogo ? '#fff' : '#f4f3f4'}
-                />
-              </View>
-            </Animated.View>
-            <Animated.View entering={FadeIn} exiting={FadeOut} layout={Layout.springify()}>
-              <View style={styles.switchContainer}>
-                <Text style={styles.switchLabel}>Arma branca</Text>
-                <Switch
-                  onValueChange={setArmaBranca}
-                  value={armaBranca}
-                  trackColor={{ false: '#ccc', true: '#28a745' }}
-                  thumbColor={armaBranca ? '#fff' : '#f4f3f4'}
-                />
-              </View>
-            </Animated.View>
-            <Animated.View entering={FadeIn} exiting={FadeOut} layout={Layout.springify()}>
-              <View style={styles.switchContainer}>
-                <Text style={styles.switchLabel}>Munições</Text>
-                <Switch
-                  onValueChange={setMunicoes}
-                  value={municoes}
-                  trackColor={{ false: '#ccc', true: '#28a745' }}
-                  thumbColor={municoes ? '#fff' : '#f4f3f4'}
-                />
-              </View>
-            </Animated.View>
-            <Animated.View entering={FadeIn} exiting={FadeOut} layout={Layout.springify()}>
-              <View style={styles.switchContainer}>
-                <Text style={styles.switchLabel}>Dinheiro</Text>
-                <Switch
-                  onValueChange={setDinheiro}
-                  value={dinheiro}
-                  trackColor={{ false: '#ccc', true: '#28a745' }}
-                  thumbColor={dinheiro ? '#fff' : '#f4f3f4'}
-                />
-              </View>
-            </Animated.View>
-            <Animated.View entering={FadeIn} exiting={FadeOut} layout={Layout.springify()}>
-              <View style={styles.switchContainer}>
-                <Text style={styles.switchLabel}>Drogas</Text>
-                <Switch
-                  onValueChange={setDrogas}
-                  value={drogas}
-                  trackColor={{ false: '#ccc', true: '#28a745' }}
-                  thumbColor={drogas ? '#fff' : '#f4f3f4'}
-                />
-              </View>
-            </Animated.View>
-            <Animated.View entering={FadeIn} exiting={FadeOut} layout={Layout.springify()}>
-              <View style={styles.switchContainer}>
-                <Text style={styles.switchLabel}>Objetos</Text>
-                <Switch
-                  onValueChange={setObjetos}
-                  value={objetos}
-                  trackColor={{ false: '#ccc', true: '#28a745' }}
-                  thumbColor={objetos ? '#fff' : '#f4f3f4'}
-                />
-              </View>
-            </Animated.View>
-            <Animated.View entering={FadeIn} exiting={FadeOut} layout={Layout.springify()}>
-              <View style={styles.switchContainer}>
-                <Text style={styles.switchLabel}>Veículos</Text>
-                <Switch
-                  onValueChange={setVeiculos}
-                  value={veiculos}
-                  trackColor={{ false: '#ccc', true: '#28a745' }}
-                  thumbColor={veiculos ? '#fff' : '#f4f3f4'}
-                />
-              </View>
-            </Animated.View>
-
-            <View style={styles.buttons}>
-              <TouchableOpacity style={styles.btnDraft} onPress={handleSaveDraft}>
-                <Text style={styles.btnText}>Salvar rascunho</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.btnNext} onPress={handleSubmit}>
-                <Text style={styles.btnText}>Próximo</Text>
-              </TouchableOpacity>
+            <View style={styles.column}>
+              <Text style={styles.label}>Bairro</Text>
+              <TextInput style={styles.input} value={bairro} onChangeText={setBairro} placeholder="Ex: Grageru" placeholderTextColor="#999" />
             </View>
           </View>
+
+          <View style={styles.row}>
+            <View style={styles.column}>
+              <Text style={styles.label}>Logradouro do fato</Text>
+              <TextInput style={styles.input} value={logradouro} onChangeText={setLogradouro} placeholder="Ex: Av. Beira Mar" placeholderTextColor="#999" />
+            </View>
+            <View style={styles.column}>
+              <Text style={styles.label}>Número</Text>
+              <TextInput style={styles.input} value={numero} onChangeText={setNumero} keyboardType="numeric" placeholder="Ex: 123" placeholderTextColor="#999" />
+            </View>
+          </View>
+
+          <Text style={styles.label}>Ponto de referência</Text>
+          <TextInput style={styles.input} value={pontoReferencia} onChangeText={setPontoReferencia} placeholder="Ex: Próximo ao shopping" placeholderTextColor="#999" />
+
+          <Text style={styles.label}>Número de atendimento</Text>
+          <TextInput style={[styles.input, styles.atendimentoNumber]} value={numAtendimento} editable={false} />
+
+          <View style={styles.row}>
+            <View style={styles.column}>
+              <Text style={styles.label}>Data</Text>
+              <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateInput}>
+                <Text style={styles.dateInputText}>{data.toLocaleDateString('pt-BR')}</Text>
+              </TouchableOpacity>
+              {showDatePicker && (<DateTimePicker value={data} mode="date" display="default" onChange={onChangeDate} />)}
+            </View>
+            <View style={styles.column}>
+              <Text style={styles.label}>Hora</Text>
+              <TouchableOpacity onPress={() => setShowTimePicker(true)} style={styles.dateInput}>
+                <Text style={styles.dateInputText}>{hora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</Text>
+              </TouchableOpacity>
+              {showTimePicker && (<DateTimePicker value={hora} mode="time" display="default" onChange={onChangeTime} />)}
+            </View>
+          </View>
+
+          <Text style={styles.sectionTitle}>Elementos presentes</Text>
+
+          {/* Switches para seleção de elementos, com animações de entrada */}
+          <Animated.View entering={FadeInUp.delay(300).duration(400)} style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Envolvidos</Text>
+            <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={envolvidos ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setEnvolvidos} value={envolvidos} />
+          </Animated.View>
+          <Animated.View entering={FadeInUp.delay(350).duration(400)} style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Arma de fogo</Text>
+            <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={armaFogo ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setArmaFogo} value={armaFogo} />
+          </Animated.View>
+          <Animated.View entering={FadeInUp.delay(400).duration(400)} style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Arma branca</Text>
+            <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={armaBranca ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setArmaBranca} value={armaBranca} />
+          </Animated.View>
+          <Animated.View entering={FadeInUp.delay(450).duration(400)} style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Munições</Text>
+            <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={municoes ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setMunicoes} value={municoes} />
+          </Animated.View>
+          <Animated.View entering={FadeInUp.delay(500).duration(400)} style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Dinheiro</Text>
+            <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={dinheiro ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setDinheiro} value={dinheiro} />
+          </Animated.View>
+          <Animated.View entering={FadeInUp.delay(550).duration(400)} style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Drogas</Text>
+            <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={drogas ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setDrogas} value={drogas} />
+          </Animated.View>
+          <Animated.View entering={FadeInUp.delay(600).duration(400)} style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Objetos</Text>
+            <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={objetos ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setObjetos} value={objetos} />
+          </Animated.View>
+          <Animated.View entering={FadeInUp.delay(650).duration(400)} style={styles.switchContainer}>
+            <Text style={styles.switchLabel}>Veículos</Text>
+            <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={veiculos ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setVeiculos} value={veiculos} />
+          </Animated.View>
+
+          {/* Botões de ação: Salvar rascunho e Próximo */}
+          <View style={styles.buttons}>
+            <TouchableOpacity style={styles.btnDraft} onPress={handleSaveDraft}>
+              <Text style={styles.btnDraftText}>Salvar rascunho</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.btnNext} onPress={handleNext}>
+              <Text style={styles.btnNextText}>Próximo</Text>
+            </TouchableOpacity>
+          </View>
+
         </Animated.View>
       </ScrollView>
     </View>
   );
-};
+}
 
+// Definição dos estilos usando StyleSheet.create para organização e performance
 const styles = StyleSheet.create({
-  fullScreenContainer: {
-    flex: 1,
+  fullScreen: {
+    flex: 1, // Ocupa toda a tela
     backgroundColor: '#f4f4f4',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, // Ajuste para barra de status no Android
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'flex-start', // Alinha o conteúdo ao topo para melhor visualização
-    paddingVertical: 0, // Remover padding vertical para ocupar mais espaço
-    paddingHorizontal: 0, // Remover padding horizontal
-  },
-  container: {
-    flex: 1, // Ocupa todo o espaço disponível dentro do ScrollView
-    backgroundColor: '#fff',
-    borderRadius: 0, // Remover borda arredondada para ocupar a tela toda
-    shadowColor: 'transparent', // Remover sombra para visual mais limpo
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
-    overflow: 'hidden',
-    marginHorizontal: 0, // Remover margem horizontal
   },
   header: {
     backgroundColor: '#145a8d',
-    padding: 16,
-    paddingTop: Platform.OS === 'ios' ? 40 : 16, // Ajuste para iOS para evitar sobreposição com a notch
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 40,
+    paddingBottom: 15,
+    paddingHorizontal: 16,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  headerText: {
+  headerTitle: {
     color: '#fff',
+    fontSize: 22,
     fontWeight: 'bold',
-    fontSize: 18,
   },
-  headerSmallText: {
+  headerSubtitle: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: 15,
     marginTop: 4,
+    opacity: 0.9,
   },
-  form: {
-    padding: 16,
+  scrollViewContent: {
+    flexGrow: 1, // Permite que o conteúdo do ScrollView seja rolavel
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+  },
+  formContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2.22,
   },
   label: {
-    marginTop: 15,
-    marginBottom: 8,
     fontSize: 14,
     fontWeight: 'bold',
     color: '#333',
+    marginTop: 15,
+    marginBottom: 6,
+  },
+  requiredIndicator: {
+    color: 'red', // Asterisco vermelho para campos obrigatórios
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   input: {
-    width: '100%',
-    padding: 12, // Aumentar padding para melhor visualização do texto
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8, // Bordas mais arredondadas
-    fontSize: 16, // Aumentar tamanho da fonte
-    backgroundColor: '#fff',
-    marginBottom: 10,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: Platform.OS === 'ios' ? 14 : 12,
+    fontSize: 15,
+    backgroundColor: '#fefefe',
     color: '#333',
-  },
-  numAtendimentoInput: {
-    backgroundColor: '#e0f2f7', // Cor de fundo diferente para destacar
-    fontWeight: 'bold',
-    fontSize: 18,
-    textAlign: 'center',
-    borderColor: '#145a8d',
-    borderWidth: 2,
   },
   pickerContainer: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ddd',
     borderRadius: 8,
-    marginBottom: 10,
-    justifyContent: 'center',
     overflow: 'hidden',
-    backgroundColor: '#fff',
+    backgroundColor: '#fefefe',
+    height: Platform.OS === 'ios' ? 48 : 50,
+    justifyContent: 'center',
   },
   picker: {
-    height: 50, // Aumentar altura do picker
+    height: Platform.OS === 'ios' ? 48 : 50,
     width: '100%',
-    color: '#333',
-  },
-  pickerItem: {
-    fontSize: 16, // Aumentar tamanho da fonte dos itens do picker
   },
   row: {
-    flexDirection: 'row',
+    flexDirection: 'row', // Itens lado a lado
     justifyContent: 'space-between',
-    gap: 10,
-    marginBottom: 10,
+    gap: 10, // Espaçamento entre os itens na linha
+    marginTop: 5,
   },
-  rowItem: {
-    flex: 1,
+  column: {
+    flex: 1, // Cada coluna ocupa espaço igual
+  },
+  dateInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: Platform.OS === 'ios' ? 14 : 12,
+    justifyContent: 'center',
+    height: Platform.OS === 'ios' ? 48 : 50,
+    backgroundColor: '#fefefe',
+  },
+  dateInputText: {
+    fontSize: 15,
+    color: '#333',
   },
   sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#145a8d',
     marginTop: 25,
     marginBottom: 10,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 5,
   },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginVertical: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
+    paddingVertical: 4,
   },
   switchLabel: {
     fontSize: 16,
-    color: '#333',
+    color: '#555',
+  },
+  atendimentoNumber: {
+    backgroundColor: '#e0f7fa',
+    borderColor: '#a7d9f7',
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#007bff',
+    paddingVertical: 14,
+    textAlign: 'center',
   },
   buttons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 30,
-    marginBottom: 20,
   },
   btnDraft: {
     flex: 1,
-    marginHorizontal: 5,
+    backgroundColor: '#e0e0e0',
     padding: 15,
-    backgroundColor: '#ddd',
     borderRadius: 8,
+    marginRight: 10,
     alignItems: 'center',
+  },
+  btnDraftText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   btnNext: {
     flex: 1,
-    marginHorizontal: 5,
-    padding: 15,
     backgroundColor: '#28a745',
+    padding: 15,
     borderRadius: 8,
+    marginLeft: 10,
     alignItems: 'center',
   },
-  btnText: {
-    fontSize: 16,
+  btnNextText: {
     color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
   },
-  datePickerButton: {
-    width: '100%',
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    fontSize: 16,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    height: 50,
-  },
-  datePickerButtonText: {
-    fontSize: 16,
-    color: '#333',
-  },
 });
-
-export default RegistrarRopScreen;
