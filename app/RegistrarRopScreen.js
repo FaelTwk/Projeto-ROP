@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated'; // Animações Reanimated
 import { useNavigation } from '@react-navigation/native'; // Vai ser usado para navegação entre telas
 
 // Lista de cidades da região de Sergipe para o Picker
@@ -83,7 +82,7 @@ export default function RegistrarRopScreen() {
 
   // Função para salvar o rascunho (simulação)
   const handleSaveDraft = () => {
-    Alert.alert('Rascunho salvo', 'Seu rascunho foi salvo com sucesso!');
+    Alert.alert('Rascunho salvo', 'Seu rascunho foi salvo com sucesso.');
   };
   
   // Função para lidar com a submissão do formulário (botão 'Próximo')
@@ -106,7 +105,7 @@ export default function RegistrarRopScreen() {
     };
 
     console.log('Dados para Próxima Página:', dadosParaProximaPagina);
-    Alert.alert('Sucesso', 'Denúncia registrada, próxima etapa..');
+    Alert.alert('Sucesso', 'Denúncia registrada, prosseguindo para o próximo passo.');
 
   };
 
@@ -114,15 +113,16 @@ export default function RegistrarRopScreen() {
     <View style={styles.fullScreen}>
       <StatusBar barStyle="light-content" backgroundColor="#145a8d" />
 
-      {/* Cabeçalho com animação de entrada */}
-      <Animated.View entering={FadeInUp.duration(600)} style={styles.header}>
+      {/* Cabeçalho */}
+      <View style={styles.header}>
         <Text style={styles.headerTitle}>Registrar ROP</Text>
         <Text style={styles.headerSubtitle}>Passo 1 de 3</Text>
-      </Animated.View>
+      </View>
 
+      {/* ScrollView que contém o formulário */}
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        {/* Container principal do formulário com animação de entrada */}
-        <Animated.View entering={FadeInDown.delay(200).duration(600)} style={styles.formContainer}>
+        {/* Container principal do formulário */}
+        <View style={styles.formContainer}>
 
           <Text style={styles.label}>Tipo de ROP<Text style={styles.requiredIndicator}>*</Text></Text>
           <View style={styles.pickerContainer}>
@@ -199,39 +199,39 @@ export default function RegistrarRopScreen() {
 
           <Text style={styles.sectionTitle}>Elementos presentes</Text>
 
-          {/* Switches para seleção de elementos, com animações de entrada */}
-          <Animated.View entering={FadeInUp.delay(300).duration(400)} style={styles.switchContainer}>
+          {/* Switches para seleção de elementos */}
+          <View style={styles.switchContainer}>
             <Text style={styles.switchLabel}>Envolvidos</Text>
             <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={envolvidos ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setEnvolvidos} value={envolvidos} />
-          </Animated.View>
-          <Animated.View entering={FadeInUp.delay(350).duration(400)} style={styles.switchContainer}>
+          </View>
+          <View style={styles.switchContainer}>
             <Text style={styles.switchLabel}>Arma de fogo</Text>
             <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={armaFogo ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setArmaFogo} value={armaFogo} />
-          </Animated.View>
-          <Animated.View entering={FadeInUp.delay(400).duration(400)} style={styles.switchContainer}>
+          </View>
+          <View style={styles.switchContainer}>
             <Text style={styles.switchLabel}>Arma branca</Text>
             <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={armaBranca ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setArmaBranca} value={armaBranca} />
-          </Animated.View>
-          <Animated.View entering={FadeInUp.delay(450).duration(400)} style={styles.switchContainer}>
+          </View>
+          <View style={styles.switchContainer}>
             <Text style={styles.switchLabel}>Munições</Text>
             <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={municoes ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setMunicoes} value={municoes} />
-          </Animated.View>
-          <Animated.View entering={FadeInUp.delay(500).duration(400)} style={styles.switchContainer}>
+          </View>
+          <View style={styles.switchContainer}>
             <Text style={styles.switchLabel}>Dinheiro</Text>
             <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={dinheiro ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setDinheiro} value={dinheiro} />
-          </Animated.View>
-          <Animated.View entering={FadeInUp.delay(550).duration(400)} style={styles.switchContainer}>
+          </View>
+          <View style={styles.switchContainer}>
             <Text style={styles.switchLabel}>Drogas</Text>
             <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={drogas ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setDrogas} value={drogas} />
-          </Animated.View>
-          <Animated.View entering={FadeInUp.delay(600).duration(400)} style={styles.switchContainer}>
+          </View>
+          <View style={styles.switchContainer}>
             <Text style={styles.switchLabel}>Objetos</Text>
             <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={objetos ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setObjetos} value={objetos} />
-          </Animated.View>
-          <Animated.View entering={FadeInUp.delay(650).duration(400)} style={styles.switchContainer}>
+          </View>
+          <View style={styles.switchContainer}>
             <Text style={styles.switchLabel}>Veículos</Text>
             <Switch trackColor={{ false: '#ccc', true: '#28a745' }} thumbColor={veiculos ? '#fff' : '#f4f3f4'} ios_backgroundColor="#e9e9ea" onValueChange={setVeiculos} value={veiculos} />
-          </Animated.View>
+          </View>
 
           {/* Botões de ação: Salvar rascunho e Próximo */}
           <View style={styles.buttons}>
@@ -243,7 +243,7 @@ export default function RegistrarRopScreen() {
             </TouchableOpacity>
           </View>
 
-        </Animated.View>
+        </View>
       </ScrollView>
     </View>
   );
@@ -279,13 +279,14 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     flexGrow: 1, // Permite que o conteúdo do ScrollView seja rolavel
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingHorizontal: 0, // Removido padding horizontal
+    paddingVertical: 0,   // Removido padding vertical para encostar no header/bottom
   },
   formContainer: {
+    flex: 1, // Permite que o formContainer preencha o espaço disponível
     backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: 0, // Removido border radius para encostar nas bordas
+    padding: 20, // Mantido padding interno para o conteúdo do formulário
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
