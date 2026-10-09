@@ -1,9 +1,10 @@
 {
   "expo": {
-    "name": "ProjetoROP",
-    "slug": "ProjetoROP",
+    "name": "Registro de Ocorrências Policiais",
+    "slug": "Registro de Ocorrências Policiais",
     "version": "1.0.0",
     "orientation": "portrait",
+    "main": "index.js",
     "icon": "./assets/images/icon.png",
     "scheme": "projetorop",
     "userInterfaceStyle": "automatic",
@@ -11,6 +12,7 @@
     "ios": {
       "supportsTablet": true
     },
+
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -30,7 +32,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
